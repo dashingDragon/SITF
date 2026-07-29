@@ -1053,9 +1053,39 @@
                         <div className="technique-id text-xs font-bold mb-0.5" style={{ color: bgColor }}>
                             {data.id}
                         </div>
-                        <div className="text-xs font-medium mb-2 line-clamp-2" style={{ color: 'var(--wiz-text-primary)' }}>
+                        <div className="text-xs font-medium mb-1 line-clamp-2" style={{ color: 'var(--wiz-text-primary)' }}>
                             {data.name}
                         </div>
+                        {fullTechnique?.frameworks && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginBottom: '4px' }}>
+                                {Object.entries(fullTechnique.frameworks).map(([fw, ids]) =>
+                                    ids.map(tid => (
+                                        <a
+                                            key={`${fw}-${tid}`}
+                                            href={fw === 'mitre_attack'
+                                                ? `https://attack.mitre.org/techniques/${tid.replace('.', '/')}/`
+                                                : `https://aws-samples.github.io/threat-technique-catalog-for-aws/Techniques/${tid}.html`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{
+                                                fontSize: '8px',
+                                                padding: '1px 4px',
+                                                borderRadius: '3px',
+                                                background: fw === 'mitre_attack' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(251, 191, 36, 0.15)',
+                                                color: fw === 'mitre_attack' ? '#F87171' : '#FBBF24',
+                                                fontFamily: 'JetBrains Mono, monospace',
+                                                fontWeight: 600,
+                                                textDecoration: 'none',
+                                                border: `1px solid ${fw === 'mitre_attack' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(251, 191, 36, 0.3)'}`
+                                            }}
+                                            title={fw === 'mitre_attack' ? 'MITRE ATT&CK' : 'AWS Threat Catalog'}
+                                        >
+                                            {tid}
+                                        </a>
+                                    ))
+                                )}
+                            </div>
+                        )}
                         {isEditing ? (
                             <input
                                 ref={inputRef}
