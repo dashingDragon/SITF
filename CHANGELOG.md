@@ -4,7 +4,36 @@ This page documents changes to SITF organized by release version.
 
 ---
 
-## Current Version: SITF v1.4 (May 2026)
+## Current Version: SITF v1.5 (July 2026)
+
+### Framework Integrations
+
+#### New Framework Mappings
+
+Added MITRE ATT&CK Enterprise v15.0 and AWS Threat Technique Catalog v1.0 mappings to 18 techniques across all pillars:
+
+| Component | Techniques with Mappings |
+|-----------|-------------------------|
+| Endpoint | T-E001, T-E003 |
+| VCS | T-V001, T-V010 |
+| CI/CD | T-C003, T-C005 |
+| Registry | T-R004, T-R010, T-R011 |
+| Production | T-P001, T-P005, T-P006, T-P007, T-P008, T-P009, T-P011, T-P013, T-P014 |
+
+Framework mappings are now displayed in both the Techniques Library and Flow Visualizer with clickable links to MITRE/AWS documentation.
+
+### Attack Flows
+
+#### New Flows
+
+| Name | Type | Reference |
+|------|------|-----------|
+| [AsyncAPI Generator July 2026](flows/incidents/asyncapi-generator-2026.json) | Incident | PWN Request supply chain attack via pull_request_target |
+| [Miasma Campaign](flows/incidents/miasma-redhat.json) | Campaign | Multi-channel C2 RAT framework targeting developers |
+
+---
+
+## SITF v1.4 (May 2026)
 
 ### Techniques
 
