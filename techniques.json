@@ -73,6 +73,16 @@
         "V5.4": { "stage": "Operate", "name": "Detection & Monitoring" },
         "V5.5": { "stage": "Operate", "name": "Incident Response & Recovery" }
       }
+    },
+    "mitre_attack": {
+      "name": "MITRE ATT&CK Enterprise",
+      "version": "15.0",
+      "url": "https://attack.mitre.org/"
+    },
+    "aws_catalog": {
+      "name": "AWS Threat Technique Catalog",
+      "version": "1.0",
+      "url": "https://aws-samples.github.io/threat-technique-catalog-for-aws/"
     }
   },
   "techniques": [
@@ -82,6 +92,9 @@
       "component": "endpoint",
       "stage": "Initial Access",
       "description": "Attacker executes malicious code on developer workstation",
+      "frameworks": {
+        "mitre_attack": ["T1204.002"]
+      },
       "risks": [
         "Using untrusted IDE extensions",
         "Using untrusted software packages on endpoints",
@@ -226,6 +239,9 @@
       "component": "endpoint",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker extracts credentials stored on developer machine",
+      "frameworks": {
+        "mitre_attack": ["T1552.001"]
+      },
       "risks": [
         "Credentials stored in plaintext",
         "Production credentials on developer machines",
@@ -1346,6 +1362,9 @@
       "component": "vcs",
       "stage": "Initial Access",
       "description": "Attacker uses stolen credentials to access VCS",
+      "frameworks": {
+        "mitre_attack": ["T1078"]
+      },
       "risks": [
         "Lack of 2FA / phishing protection",
         "Credentials in org public repos",
@@ -1870,6 +1889,9 @@
       "component": "vcs",
       "stage": "Post-Compromise",
       "description": "Attacker with repository access directly modifies source code to inject backdoors, malicious logic, or vulnerabilities into the codebase",
+      "frameworks": {
+        "mitre_attack": ["T1195.002"]
+      },
       "risks": [
         "Overprivileged VCS access",
         "No code review requirements",
@@ -2274,6 +2296,9 @@
       "component": "cicd",
       "stage": "Initial Access",
       "description": "Attacker submits malicious PR that triggers workflow with elevated privileges",
+      "frameworks": {
+        "mitre_attack": ["T1195.002"]
+      },
       "risks": [
         "Misconfigured repo - visibility",
         "Misconfigured VCS access - external contributors",
@@ -2407,6 +2432,9 @@
       "component": "cicd",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker extracts secrets from CI/CD workflow execution",
+      "frameworks": {
+        "mitre_attack": ["T1552.001"]
+      },
       "risks": [
         "Workflow with access to secrets",
         "No runtime monitoring",
@@ -3587,6 +3615,9 @@
       "component": "registry",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker publishes malicious package to registry",
+      "frameworks": {
+        "mitre_attack": ["T1195.001"]
+      },
       "risks": [
         "Overprivileged NPM token",
         "Lack of provenance",
@@ -3943,6 +3974,9 @@
       "component": "registry",
       "stage": "Initial Access",
       "description": "Attacker publishes malicious packages with names similar to legitimate ones to trick developers into installing them by mistake",
+      "frameworks": {
+        "mitre_attack": ["T1195.001"]
+      },
       "risks": [
         "No package name verification",
         "Lack of typosquatting detection",
@@ -4028,6 +4062,9 @@
       "component": "registry",
       "stage": "Initial Access",
       "description": "Attacker publishes malicious packages with same names as private packages but higher version numbers, tricking package managers into fetching the public version instead of the private package",
+      "frameworks": {
+        "mitre_attack": ["T1195.001"]
+      },
       "risks": [
         "Lack of internal repository enforcement",
         "Package managers prioritize public repositories",
@@ -4298,6 +4335,9 @@
       "component": "production",
       "stage": "Initial Access",
       "description": "Attacker extracts production credentials from CI/CD and uses them to access production",
+      "frameworks": {
+        "mitre_attack": ["T1078.004"]
+      },
       "risks": [
         "Production credentials in CI/CD workflows",
         "Long-lived production credentials",
@@ -4537,6 +4577,9 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker modifies IaC to create backdoors in production infrastructure",
+      "frameworks": {
+        "mitre_attack": ["T1098"]
+      },
       "risks": [
         "Insufficient IaC review process",
         "Lack of drift detection",
@@ -4597,6 +4640,9 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker extracts Kubernetes service account tokens from CI/CD",
+      "frameworks": {
+        "mitre_attack": ["T1552.007"]
+      },
       "risks": [
         "Overprivileged service accounts",
         "Long-lived tokens",
@@ -4656,6 +4702,10 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker accesses cloud metadata service to steal additional credentials",
+      "frameworks": {
+        "mitre_attack": ["T1552.005"],
+        "aws_catalog": ["T1552.005"]
+      },
       "risks": [
         "Metadata service not restricted",
         "Overprivileged IAM roles",
@@ -4715,6 +4765,9 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker escapes from container to underlying node",
+      "frameworks": {
+        "mitre_attack": ["T1611"]
+      },
       "risks": [
         "Privileged containers allowed",
         "No pod security policies",
@@ -4775,6 +4828,10 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker uses compromised cloud credentials to access other cloud services",
+      "frameworks": {
+        "mitre_attack": ["T1199"],
+        "aws_catalog": ["T1199.A002"]
+      },
       "risks": [
         "Overprivileged IAM roles",
         "No network segmentation",
@@ -4894,6 +4951,10 @@
       "component": "production",
       "stage": "Post-Compromise",
       "description": "Attacker accesses production secrets store and exfiltrates customer secrets, tokens, and credentials",
+      "frameworks": {
+        "mitre_attack": ["T1552"],
+        "aws_catalog": ["T1552"]
+      },
       "risks": [
         "Encryption keys accessible in process memory",
         "Lack of hardware security module (HSM) for key storage",
@@ -5081,6 +5142,10 @@
       "component": "production",
       "stage": "Post-Compromise",
       "description": "Attacker exfiltrates customer data, application data, databases, and sensitive information from production environment over network",
+      "frameworks": {
+        "mitre_attack": ["T1567"],
+        "aws_catalog": ["T1530"]
+      },
       "risks": [
         "No network egress monitoring",
         "Unrestricted outbound network access",
@@ -5183,6 +5248,10 @@
       "component": "production",
       "stage": "Post-Compromise",
       "description": "Attacker destroys production infrastructure, databases, storage, or configurations to cause severe operational disruption and data loss",
+      "frameworks": {
+        "mitre_attack": ["T1485"],
+        "aws_catalog": ["T1485.A001"]
+      },
       "risks": [
         "Overprivileged IAM roles allowing destructive actions",
         "No backup and disaster recovery plan",

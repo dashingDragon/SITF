@@ -441,6 +441,41 @@
             cursor: help;
         }
 
+        .technique-frameworks {
+            margin-top: 8px;
+            padding: 8px 10px;
+            background: rgba(74, 144, 226, 0.08);
+            border-radius: 6px;
+            border-left: 3px solid var(--wiz-accent-blue);
+            font-size: 0.85em;
+        }
+
+        .framework-mapping {
+            display: inline-block;
+            margin-right: 16px;
+            color: var(--wiz-text-secondary);
+        }
+
+        .framework-mapping strong {
+            color: var(--wiz-text-primary);
+            font-weight: 600;
+        }
+
+        .framework-link {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--wiz-accent-blue);
+            text-decoration: none;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: rgba(74, 144, 226, 0.1);
+            transition: all 0.2s;
+        }
+
+        .framework-link:hover {
+            background: rgba(74, 144, 226, 0.2);
+            text-decoration: underline;
+        }
+
         .no-results {
             background: var(--wiz-dark-surface);
             border-radius: 12px;
@@ -677,6 +712,16 @@
           "name": "Incident Response & Recovery"
         }
       }
+    },
+    "mitre_attack": {
+      "name": "MITRE ATT&CK Enterprise",
+      "version": "15.0",
+      "url": "https://attack.mitre.org/"
+    },
+    "aws_catalog": {
+      "name": "AWS Threat Technique Catalog",
+      "version": "1.0",
+      "url": "https://aws-samples.github.io/threat-technique-catalog-for-aws/"
     }
   },
   "techniques": [
@@ -686,6 +731,11 @@
       "component": "endpoint",
       "stage": "Initial Access",
       "description": "Attacker executes malicious code on developer workstation",
+      "frameworks": {
+        "mitre_attack": [
+          "T1204.002"
+        ]
+      },
       "risks": [
         "Using untrusted IDE extensions",
         "Using untrusted software packages on endpoints",
@@ -830,6 +880,11 @@
       "component": "endpoint",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker extracts credentials stored on developer machine",
+      "frameworks": {
+        "mitre_attack": [
+          "T1552.001"
+        ]
+      },
       "risks": [
         "Credentials stored in plaintext",
         "Production credentials on developer machines",
@@ -1950,6 +2005,11 @@
       "component": "vcs",
       "stage": "Initial Access",
       "description": "Attacker uses stolen credentials to access VCS",
+      "frameworks": {
+        "mitre_attack": [
+          "T1078"
+        ]
+      },
       "risks": [
         "Lack of 2FA / phishing protection",
         "Credentials in org public repos",
@@ -2474,6 +2534,11 @@
       "component": "vcs",
       "stage": "Post-Compromise",
       "description": "Attacker with repository access directly modifies source code to inject backdoors, malicious logic, or vulnerabilities into the codebase",
+      "frameworks": {
+        "mitre_attack": [
+          "T1195.002"
+        ]
+      },
       "risks": [
         "Overprivileged VCS access",
         "No code review requirements",
@@ -2878,6 +2943,11 @@
       "component": "cicd",
       "stage": "Initial Access",
       "description": "Attacker submits malicious PR that triggers workflow with elevated privileges",
+      "frameworks": {
+        "mitre_attack": [
+          "T1195.002"
+        ]
+      },
       "risks": [
         "Misconfigured repo - visibility",
         "Misconfigured VCS access - external contributors",
@@ -3011,6 +3081,11 @@
       "component": "cicd",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker extracts secrets from CI/CD workflow execution",
+      "frameworks": {
+        "mitre_attack": [
+          "T1552.001"
+        ]
+      },
       "risks": [
         "Workflow with access to secrets",
         "No runtime monitoring",
@@ -4220,6 +4295,11 @@
       "component": "registry",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker publishes malicious package to registry",
+      "frameworks": {
+        "mitre_attack": [
+          "T1195.001"
+        ]
+      },
       "risks": [
         "Overprivileged NPM token",
         "Lack of provenance",
@@ -4576,6 +4656,11 @@
       "component": "registry",
       "stage": "Initial Access",
       "description": "Attacker publishes malicious packages with names similar to legitimate ones to trick developers into installing them by mistake",
+      "frameworks": {
+        "mitre_attack": [
+          "T1195.001"
+        ]
+      },
       "risks": [
         "No package name verification",
         "Lack of typosquatting detection",
@@ -4661,6 +4746,11 @@
       "component": "registry",
       "stage": "Initial Access",
       "description": "Attacker publishes malicious packages with same names as private packages but higher version numbers, tricking package managers into fetching the public version instead of the private package",
+      "frameworks": {
+        "mitre_attack": [
+          "T1195.001"
+        ]
+      },
       "risks": [
         "Lack of internal repository enforcement",
         "Package managers prioritize public repositories",
@@ -4931,6 +5021,11 @@
       "component": "production",
       "stage": "Initial Access",
       "description": "Attacker extracts production credentials from CI/CD and uses them to access production",
+      "frameworks": {
+        "mitre_attack": [
+          "T1078.004"
+        ]
+      },
       "risks": [
         "Production credentials in CI/CD workflows",
         "Long-lived production credentials",
@@ -5170,6 +5265,11 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker modifies IaC to create backdoors in production infrastructure",
+      "frameworks": {
+        "mitre_attack": [
+          "T1098"
+        ]
+      },
       "risks": [
         "Insufficient IaC review process",
         "Lack of drift detection",
@@ -5230,6 +5330,11 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker extracts Kubernetes service account tokens from CI/CD",
+      "frameworks": {
+        "mitre_attack": [
+          "T1552.007"
+        ]
+      },
       "risks": [
         "Overprivileged service accounts",
         "Long-lived tokens",
@@ -5289,6 +5394,14 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker accesses cloud metadata service to steal additional credentials",
+      "frameworks": {
+        "mitre_attack": [
+          "T1552.005"
+        ],
+        "aws_catalog": [
+          "T1552.005"
+        ]
+      },
       "risks": [
         "Metadata service not restricted",
         "Overprivileged IAM roles",
@@ -5348,6 +5461,11 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker escapes from container to underlying node",
+      "frameworks": {
+        "mitre_attack": [
+          "T1611"
+        ]
+      },
       "risks": [
         "Privileged containers allowed",
         "No pod security policies",
@@ -5408,6 +5526,14 @@
       "component": "production",
       "stage": "Discovery and Lateral Movement",
       "description": "Attacker uses compromised cloud credentials to access other cloud services",
+      "frameworks": {
+        "mitre_attack": [
+          "T1199"
+        ],
+        "aws_catalog": [
+          "T1199.A002"
+        ]
+      },
       "risks": [
         "Overprivileged IAM roles",
         "No network segmentation",
@@ -5527,6 +5653,14 @@
       "component": "production",
       "stage": "Post-Compromise",
       "description": "Attacker accesses production secrets store and exfiltrates customer secrets, tokens, and credentials",
+      "frameworks": {
+        "mitre_attack": [
+          "T1552"
+        ],
+        "aws_catalog": [
+          "T1552"
+        ]
+      },
       "risks": [
         "Encryption keys accessible in process memory",
         "Lack of hardware security module (HSM) for key storage",
@@ -5714,6 +5848,14 @@
       "component": "production",
       "stage": "Post-Compromise",
       "description": "Attacker exfiltrates customer data, application data, databases, and sensitive information from production environment over network",
+      "frameworks": {
+        "mitre_attack": [
+          "T1567"
+        ],
+        "aws_catalog": [
+          "T1530"
+        ]
+      },
       "risks": [
         "No network egress monitoring",
         "Unrestricted outbound network access",
@@ -5816,6 +5958,14 @@
       "component": "production",
       "stage": "Post-Compromise",
       "description": "Attacker destroys production infrastructure, databases, storage, or configurations to cause severe operational disruption and data loss",
+      "frameworks": {
+        "mitre_attack": [
+          "T1485"
+        ],
+        "aws_catalog": [
+          "T1485.A001"
+        ]
+      },
       "risks": [
         "Overprivileged IAM roles allowing destructive actions",
         "No backup and disaster recovery plan",
@@ -6098,14 +6248,14 @@
         // Helper function to format framework tags - one tag per framework with tooltip showing all mappings
         function formatFrameworkTags(control) {
             if (!control.frameworks) return '';
-            
+
             const frameworkDefs = techniquesData.frameworkDefinitions || {};
             const tags = [];
-            
+
             Object.entries(control.frameworks).forEach(([frameworkId, values]) => {
                 const frameworkDef = frameworkDefs[frameworkId];
                 if (!frameworkDef || !Array.isArray(values) || values.length === 0) return;
-                
+
                 // Group by stage for organized tooltip
                 const stageGroups = {};
                 values.forEach(v => {
@@ -6117,20 +6267,59 @@
                         stageGroups[catMeta.stage].push({ id: v, name: catMeta.name });
                     }
                 });
-                
+
                 // Build tooltip with all stages and categories
                 const tooltipLines = [`${frameworkDef.name} v${frameworkDef.version}`];
                 Object.entries(stageGroups).forEach(([stage, cats]) => {
                     tooltipLines.push(`\n${stage}:`);
                     cats.forEach(c => tooltipLines.push(`  ${c.id}: ${c.name}`));
                 });
-                
+
                 // Create single tag for this framework
                 const displayName = frameworkId.toUpperCase();
                 tags.push(`<span class="framework-tag" title="${tooltipLines.join('\n')}">${displayName}</span>`);
             });
-            
+
             return tags.length > 0 ? ` <span class="framework-tags">${tags.join('')}</span>` : '';
+        }
+
+        // Helper function to format technique-level framework mappings (MITRE ATT&CK, AWS Catalog)
+        function formatTechniqueFrameworks(tech) {
+            if (!tech.frameworks) return '';
+
+            const frameworkDefs = techniquesData.frameworkDefinitions || {};
+            const sections = [];
+
+            Object.entries(tech.frameworks).forEach(([frameworkId, techniqueIds]) => {
+                if (!Array.isArray(techniqueIds) || techniqueIds.length === 0) return;
+
+                const frameworkDef = frameworkDefs[frameworkId] || {};
+                const links = techniqueIds.map(tid => {
+                    let url = '';
+                    if (frameworkId === 'mitre_attack') {
+                        // MITRE ATT&CK URL format: T1078.004 -> /techniques/T1078/004
+                        const parts = tid.split('.');
+                        url = parts.length > 1
+                            ? `https://attack.mitre.org/techniques/${parts[0]}/${parts[1]}/`
+                            : `https://attack.mitre.org/techniques/${tid}/`;
+                    } else if (frameworkId === 'aws_catalog') {
+                        // AWS Catalog URL format: T1552.005 -> /Techniques/T1552.005.html
+                        url = `https://aws-samples.github.io/threat-technique-catalog-for-aws/Techniques/${tid}.html`;
+                    }
+                    return url
+                        ? `<a href="${url}" target="_blank" rel="noopener" class="framework-link">${tid}</a>`
+                        : `<span class="framework-link">${tid}</span>`;
+                });
+
+                const label = frameworkId === 'mitre_attack' ? 'MITRE ATT&CK' :
+                              frameworkId === 'aws_catalog' ? 'AWS Catalog' :
+                              (frameworkDef.name || frameworkId);
+                sections.push(`<span class="framework-mapping"><strong>${label}:</strong> ${links.join(', ')}</span>`);
+            });
+
+            return sections.length > 0
+                ? `<div class="technique-frameworks">${sections.join(' ')}</div>`
+                : '';
         }
 
         // State
@@ -6320,6 +6509,7 @@
                                 </div>
                                 <div class="technique-name">${tech.name}</div>
                                 <div class="technique-description">${tech.description}</div>
+                                ${formatTechniqueFrameworks(tech)}
                                 <div class="technique-details">
                                     <div class="detail-section">
                                         <div class="detail-title">⚠️ Risks</div>
