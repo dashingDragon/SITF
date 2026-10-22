@@ -16,7 +16,7 @@ Generate SITF-compliant attack flow JSON files from attack descriptions or incid
 ```
 
 - `attack-name`: Identifier for the attack (e.g., "s1ngularity", "solarwinds")
-- `source`: URL, "websearch" for auto-research, or omit to use conversation context
+- `source`: URL, local file path (report, write-up), "websearch" for auto-research, or omit to use conversation context. A name plus a document ("X, and use this report to augment") means: research X **and** fold in the document
 
 Arguments: $ARGUMENTS
 
@@ -35,6 +35,12 @@ When this skill is invoked:
 
 2. If source is omitted, use context from the current conversation.
 
+3. If the user supplies a document (internal report, write-up), treat it as a primary source but still cross-check:
+   - Find the **official post-mortem** from the affected organization, plus the original disclosure (e.g. the GitHub issue)
+   - Add details the document lacks (exact timestamps, commit SHAs, accounts involved) and cite where each came from
+   - **Flag conflicts** between sources in the output, especially where a new fact weakens a recommendation in the document (e.g. "approval gate would have stopped it" vs. the approval was given by a second stolen account)
+   - Keep internal documents out of anything public (node evidence, PR bodies): cite public sources only
+
 ### Phase 2: Technique Mapping
 
 1. Read `techniques.json` to get the full technique library.
@@ -49,6 +55,21 @@ When this skill is invoked:
    - If in-scope: Create placeholder with `"type": "technique-gap"`
    - If out-of-scope (generic cloud/infra attack): Note in output, reference MITRE ATT&CK
    - Note in output that `/technique-proposal` should be run for in-scope gaps
+
+4. **Out-of-scope initial access**: when the way in has no SITF technique (e.g. exploiting an internet-exposed app, MITRE T1190), do NOT force a mapping. Describe it in the entry point's `customLabel` and connect the entry point directly to the first in-scope technique.
+
+5. **Contributing conditions**: a condition that enabled the attack but wasn't an attacker action (e.g. AI coding agent traffic leaking tokens into logs) can be shown as a technique node when it carries useful controls:
+   - Prefix its `customLabel` with "Contributing:" and say in `evidence` that it is not an attacker action
+   - Connect it with a **dashed** edge (see Phase 4); it is a legitimate root node with no incoming edge
+
+6. **Attacker infrastructure** (dead-drop repos, lookalike forks, exfil domains): put it in the `evidence` of the technique that uses it, or as a single technique (e.g. T-V008) in the relevant component. Do NOT create a separate zone for it; zones are for victims.
+
+7. **Downstream consumers** (any malicious package, image, or extension): walk every consumer type and either map it or note "not observed":
+   - Developer endpoints (local installs): T-E001, T-E003, C2 techniques
+   - CI/CD runners: T-C010, T-C005
+   - Production / Kubernetes / cloud: T-P011, T-P007, T-P009
+   - Downstream registries (worm-style republishing): T-R004
+   - Mark mappings inferred from payload capabilities (vs. observed victims) as `[Inference]` in `evidence`
 
 ### Phase 3: Layout Calculation
 
@@ -80,10 +101,15 @@ Apply these layout rules:
 - All components should have consistent height for visual alignment
 
 #### Rule 5: Edge Connections
-- Connect source.bottom → target.top for vertical flows within component
-- Connect source.right → target.left for cross-component flows
-- Add labels for significant transitions ("Stolen token", "pip install", etc.)
+- Technique nodes only have a `top` target handle and a `bottom` source handle (`app/visualizer.html`). Entry points expose `right`/`bottom` sources, exit points `left`/`top` targets
+- Use `sourceHandle: "bottom"`, `targetHandle: "top"` within a component. For cross-component edges, `right`/`left` is the convention, but on technique nodes it falls back to bottom/top. Don't design layouts that rely on side connections
 - Use `"type": "smoothstep"` for all edges
+
+#### Rule 6: Edge Labels (Minimal)
+- Labels overlap nodes on the canvas. Leave most edges unlabeled (`"label": ""`)
+- Label at most 3-5 key pivots (typically cross-component or cross-zone), 1-2 words each: "Tokens", "Build source", "Install"
+- Timestamps, commit SHAs and other details go in technique `customLabel` / `evidence`, never on edges
+- Use a transparent label background and 10px font (see Phase 4 edge structure)
 
 ### Phase 4: JSON Generation
 
@@ -205,8 +231,8 @@ Generate the attack flow JSON with this exact structure:
   "animated": false,
   "markerEnd": { "type": "arrowclosed" },
   "label": "",
-  "labelStyle": { "fill": "#DC2626", "fontWeight": 600, "fontSize": 12 },
-  "labelBgStyle": { "fill": "#FEE2E2", "fillOpacity": 0.9 }
+  "labelStyle": { "fill": "#DC2626", "fontWeight": 600, "fontSize": 10 },
+  "labelBgStyle": { "fill": "#FFFFFF", "fillOpacity": 0 }
 }
 ```
 
@@ -222,11 +248,14 @@ Generate the attack flow JSON with this exact structure:
   "animated": false,
   "style": { "stroke": "#9ca3af" },
   "markerEnd": { "type": "arrowclosed", "color": "#9ca3af" },
-  "label": "Transition label",
-  "labelStyle": { "fill": "#DC2626", "fontWeight": 600, "fontSize": 12 },
-  "labelBgStyle": { "fill": "#FEE2E2", "fillOpacity": 0.9 }
+  "label": "Tokens",
+  "labelStyle": { "fill": "#DC2626", "fontWeight": 600, "fontSize": 10 },
+  "labelBgStyle": { "fill": "#FFFFFF", "fillOpacity": 0 }
 }
 ```
+
+#### Contributing-condition Edge (dashed)
+Same as the cross-component edge, with `"style": { "stroke": "#9ca3af", "strokeDasharray": "5,5" }` and usually `"label": ""`. Also used for attacker infrastructure the payload depends on (e.g. a C2 dead drop). See `flows/incidents/trivy-act-ii.json`.
 
 Node types:
 - `entryPoint`: Attack entry (Phishing, Vulnerability Exploit, Stolen Credentials, Malicious Fork PR, etc.)
@@ -268,6 +297,8 @@ When an attack involves multiple victim organizations (e.g., supply chain attack
 - Use distinct colors for each victim (e.g., `#3B82F6` blue, `#06B6D4` cyan, `#8B5CF6` purple)
 - Set `zIndex: -10` so zones render behind components and techniques
 - Connect cross-zone techniques with edges showing the pivot between organizations
+- For a package/image compromise, add a "Downstream Consumers" zone covering the consumer types from Phase 2 step 7
+- Don't create zones for attacker infrastructure (see Phase 2 step 6)
 
 **Reference:** See `flows/incidents/teampcp-campaign.json` for a multi-victim example with 4 victim zones.
 
@@ -310,8 +341,11 @@ Run this checklist before outputting:
 [ ] Initial Access techniques appear first when order is ambiguous
 [ ] All technique IDs exist in techniques.json OR flagged as technique-gap
 [ ] Exit points connected to terminal techniques
-[ ] No orphaned nodes (every non-entry node has incoming edge)
+[ ] No orphaned nodes: every non-entry node has an incoming edge, EXCEPT roots whose customLabel marks them as "Contributing:" or attacker preparation
 [ ] Edges have sourceHandle, targetHandle, markerEnd, labelStyle, labelBgStyle
+[ ] Edge labels: at most 3-5 non-empty, each 1-2 words, transparent background
+[ ] Downstream consumer types each mapped or noted "not observed" (package/image compromises)
+[ ] Source conflicts and inferred steps flagged in output
 ```
 
 ### Phase 7: Output
@@ -348,6 +382,13 @@ Run this checklist before outputting:
 ```
 
 4. If any technique-gaps exist, list them and recommend running `/technique-proposal`
+
+### Iterating on a User-Edited Flow
+
+Users often adjust the layout in the visualizer and save over the file, then ask for more changes.
+- Edit the file in place. Preserve the user's positions and sizes, and only move what the new change requires (e.g. widen a zone, shift exits)
+- Saving from the visualizer currently resets `metadata.name` to "Attack Flow" and drops `title`/`description`. Check the metadata after every user save and restore it
+- To summarize the user's edits, diff the file against your last generated version (nodes/edges added or removed, positions, sizes)
 
 ## Example
 
