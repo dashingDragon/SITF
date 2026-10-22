@@ -87,11 +87,14 @@ When this skill is invoked:
    - Check if finding is **in-scope** for SITF (SDLC/supply-chain related)
    - If in-scope: Create placeholder with `"type": "technique-gap"`
    - If out-of-scope (generic infra attack): Note in output, reference MITRE ATT&CK
+   - If the **initial access** is out-of-scope (e.g. exploiting an internet-facing app, MITRE T1190), describe it in the entry point's `customLabel` and connect the entry point directly to the first in-scope technique
 
 4. For pentest reports with isolated findings (not chained):
    - Group findings by target component
    - Create parallel technique nodes within each component
    - Connect entry point to each finding independently
+
+5. **Contributing conditions** (a misconfiguration that enabled a step but wasn't an action the team took, e.g. tokens written to logs): show as a technique node only if it carries useful controls. Prefix its `customLabel` with "Contributing:" and connect it with a dashed edge (see `/attack-flow` Phase 4)
 
 ### Phase 3: Layout Calculation
 
@@ -118,10 +121,16 @@ Apply these layout rules (consistent with `/attack-flow`):
 - Height = max(500, (technique_count × 130) + 160)
 
 #### Rule 5: Edge Connections
-- Connect source.bottom → target.top for vertical flows within component
-- Connect source.right → target.left for cross-component flows
-- Add labels from report evidence ("Stolen AWS_ACCESS_KEY_ID", "via PR #123")
+- Technique nodes only have a `top` target handle and a `bottom` source handle (`app/visualizer.html`). Entry points expose `right`/`bottom` sources, exit points `left`/`top` targets
+- Use `sourceHandle: "bottom"`, `targetHandle: "top"` within a component. For cross-component edges, `right`/`left` is the convention, but on technique nodes it falls back to bottom/top. Don't design layouts that rely on side connections
 - Use `"type": "smoothstep"` for all edges
+- Edge JSON structure (including dashed edges) is the same as `/attack-flow` Phase 4
+
+#### Rule 6: Edge Labels (Minimal)
+- Labels overlap nodes on the canvas. Leave most edges unlabeled (`"label": ""`)
+- Label at most 3-5 key pivots (typically cross-component), 1-2 words each: "AWS keys", "PAT", "PR #123"
+- Report evidence (secret names, PR numbers, commands) goes in technique `customLabel` / `evidence`, never on edges
+- Use `"labelStyle": { "fill": "#DC2626", "fontWeight": 600, "fontSize": 10 }` and a transparent `"labelBgStyle": { "fill": "#FFFFFF", "fillOpacity": 0 }`
 
 ### Phase 4: JSON Generation
 
@@ -221,6 +230,9 @@ Run this checklist before outputting:
 [ ] Out-of-scope findings noted but not forced into SITF
 [ ] Evidence preserved in customLabel or evidence fields
 [ ] Exit points connected to terminal techniques
+[ ] No orphaned nodes: every non-entry node has an incoming edge, EXCEPT roots marked "Contributing:"
+[ ] Edge labels: at most 3-5 non-empty, each 1-2 words, transparent background
+[ ] No client-identifying details unless the user confirmed the flow stays private
 ```
 
 ### Phase 7: Output
@@ -257,6 +269,17 @@ Run this checklist before outputting:
 ```
 
 4. If technique-gaps exist, recommend `/technique-proposal` for each
+
+### Confidentiality
+
+Red team reports are usually confidential, and flows may end up in a public repo or PR. Unless the user says otherwise, use a neutral engagement name, and leave client names, internal hostnames, account names and real secrets out of labels, evidence and metadata.
+
+### Iterating on a User-Edited Flow
+
+Users often adjust the layout in the visualizer and save over the file, then ask for more changes.
+- Edit the file in place. Preserve the user's positions and sizes, and only move what the new change requires
+- Saving from the visualizer currently resets `metadata.name` to "Attack Flow" and drops `title`/`description` (check `source`, `engagement` and `scope` too). Check the metadata after every user save and restore it
+- To summarize the user's edits, diff the file against your last generated version
 
 ## Examples
 
